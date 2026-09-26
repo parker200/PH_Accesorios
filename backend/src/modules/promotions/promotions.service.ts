@@ -18,7 +18,7 @@ export interface PromotionWithExclusions {
   id: string;
   name: string;
   type: string;
-  discountPercentage: number;
+  discountPercentage: number | any;
   productId: string | null;
   categoryId: string | null;
   startDate: Date;
@@ -101,7 +101,7 @@ export class PromotionsService {
    * 3. If multiple of the same type exist, the highest discount applies
    */
   calculatePrice(
-    product: { id: string; categoryId: string; price: number },
+    product: { id: string; categoryId: string; price: number | any },
     activePromotions: PromotionWithExclusions[]
   ): PromotionCalculationResult {
     const originalPrice = Number(product.price);
@@ -116,7 +116,7 @@ export class PromotionsService {
     if (productPromos.length > 0) {
       // Pick the highest discount among product-specific promos
       chosenPromo = productPromos.reduce((prev, curr) =>
-        curr.discountPercentage > prev.discountPercentage ? curr : prev
+        Number(curr.discountPercentage) > Number(prev.discountPercentage) ? curr : prev
       );
     } else {
       // 2. Check for category-level promotions
@@ -132,7 +132,7 @@ export class PromotionsService {
       if (categoryPromos.length > 0) {
         // Pick the highest discount among category promos
         chosenPromo = categoryPromos.reduce((prev, curr) =>
-          curr.discountPercentage > prev.discountPercentage ? curr : prev
+          Number(curr.discountPercentage) > Number(prev.discountPercentage) ? curr : prev
         );
       }
     }

@@ -56,9 +56,13 @@ export class ProductsService {
 
     // Map each product with its calculated pricing
     const enrichedProducts = products.map((product) => {
-      const pricing = this.promotionsService.calculatePrice(product, activePromotions);
+      const pricing = this.promotionsService.calculatePrice(
+        { ...product, price: Number(product.price) },
+        activePromotions
+      );
       return {
         ...product,
+        price: Number(product.price),
         pricing
       };
     });
@@ -81,10 +85,14 @@ export class ProductsService {
     }
 
     const activePromotions = await this.promotionsService.getActivePromotions();
-    const pricing = this.promotionsService.calculatePrice(product, activePromotions);
+    const pricing = this.promotionsService.calculatePrice(
+      { ...product, price: Number(product.price) },
+      activePromotions
+    );
 
     return {
       ...product,
+      price: Number(product.price),
       pricing
     };
   }
