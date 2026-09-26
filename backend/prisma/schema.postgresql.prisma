@@ -1,0 +1,130 @@
+// PostgreSQL Schema for Accesorios PH (Production ready)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id          String           @id @default(uuid()) @db.Uuid
+  name        String           @unique
+  description String?
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  users       User[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(uuid()) @db.Uuid
+  code        String           @unique
+  description String?
+  roles       RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String     @map("role_id") @db.Uuid
+  permissionId String     @map("permission_id") @db.Uuid
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  roleId       String   @map("role_id") @db.Uuid
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  email        String?  @unique
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  role         Role     @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@map("users")
+}
+
+model Category {
+  id          String      @id @default(uuid()) @db.Uuid
+  name        String      @unique
+  slug        String      @unique
+  description String?
+  isActive    Boolean     @default(true) @map("is_active")
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime    @updatedAt @map("updated_at") @db.Timestamptz
+  products    Product[]
+  promotions  Promotion[]
+
+  @@map("categories")
+}
+
+model Product {
+  id                   String               @id @default(uuid()) @db.Uuid
+  categoryId           String               @map("category_id") @db.Uuid
+  name                 String
+  slug                 String               @unique
+  description          String?
+  price                Decimal              @db.Decimal(10, 2)
+  isActive             Boolean              @default(true) @map("is_active")
+  createdAt            DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime             @updatedAt @map("updated_at") @db.Timestamptz
+  category             Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  media                ProductMedia[]
+  promotions           Promotion[]
+  promotionExclusions  PromotionExclusion[]
+
+  @@map("products")
+}
+
+model ProductMedia {
+  id           String   @id @default(uuid()) @db.Uuid
+  productId    String   @map("product_id") @db.Uuid
+  type         String   // "image" | "video"
+  url          String
+  storagePath  String   @map("storage_path")
+  displayOrder Int      @default(0) @map("display_order")
+  isCover      Boolean  @default(false) @map("is_cover")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_media")
+}
+
+model Promotion {
+  id                 String               @id @default(uuid()) @db.Uuid
+  name               String
+  type               String               // "product" | "category"
+  discountPercentage Decimal              @map("discount_percentage") @db.Decimal(5, 2)
+  productId          String?              @map("product_id") @db.Uuid
+  categoryId         String?              @map("category_id") @db.Uuid
+  startDate          DateTime             @map("start_date") @db.Timestamptz
+  endDate            DateTime             @map("end_date") @db.Timestamptz
+  isActive           Boolean              @default(true) @map("is_active")
+  createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt          DateTime             @updatedAt @map("updated_at") @db.Timestamptz
+  product            Product?             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category           Category?            @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  exclusions         PromotionExclusion[]
+
+  @@map("promotions")
+}
+
+model PromotionExclusion {
+  id          String    @id @default(uuid()) @db.Uuid
+  promotionId String    @map("promotion_id") @db.Uuid
+  productId   String    @map("product_id") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([promotionId, productId])
+  @@map("promotion_exclusions")
+}

@@ -1,0 +1,40 @@
+:root {
+  /* Brand Palette - Accesorios PH */
+  --color-black: #140F0C;
+  --color-white: #FFFFFF;
+  --color-bg-light: #F1F1F2;
+  --color-gray-light: #DBDCE1;
+  --color-gray-border: #E2E3E8;
+  --color-gray-muted: #6E6D7A;
+  --color-sky-blue: #98C1DA;
+  --color-sky-blue-hover: #7FAECB;
+  --color-sky-blue-subtle: #EBF3F8;
+  
+  /* Status Colors */
+  --color-success: #10B981;
+  --color-success-bg: #ECFDF5;
+  --color-danger: #EF4444;
+  --color-danger-bg: #FEF2F2;
+  --color-warning: #F59E0B;
+
+  /* Typography */
+  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  
+  /* Spacing & Borders */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Apple-inspired Elevation & Shadows */
+  --shadow-subtle: 0 1px 3px rgba(20, 15, 12, 0.04), 0 1px 2px rgba(20, 15, 12, 0.02);
+  --shadow-card: 0 4px 20px -2px rgba(20, 15, 12, 0.06), 0 2px 6px -1px rgba(20, 15, 12, 0.03);
+  --shadow-hover: 0 12px 30px -4px rgba(20, 15, 12, 0.12), 0 4px 10px -2px rgba(20, 15, 12, 0.04);
+  --shadow-modal: 0 25px 50px -12px rgba(20, 15, 12, 0.25);
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}

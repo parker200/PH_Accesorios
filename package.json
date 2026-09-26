@@ -1,0 +1,12 @@
+{
+  "name": "accesorios-ph",
+  "version": "1.0.0",
+  "description": "Accesorios PH - Plataforma Web y Panel de Administración",
+  "scripts": {
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "test": "npm test --prefix backend",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend"
+  },
+  "keywords": ["ecommerce", "catalog", "accessories", "whatsapp-store"]
+}

@@ -1,0 +1,132 @@
+// Prisma Schema for Accesorios PH
+// Compatible with both SQLite (zero-config local dev) and PostgreSQL (production)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // Can be switched to "postgresql" via provider & DATABASE_URL
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  description String?
+  createdAt   DateTime         @default(now())
+  users       User[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(uuid())
+  code        String           @unique
+  description String?
+  roles       RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  roleId       String
+  username     String   @unique
+  passwordHash String
+  email        String?  @unique
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  role         Role     @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@map("users")
+}
+
+model Category {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  slug        String      @unique
+  description String?
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  products    Product[]
+  promotions  Promotion[]
+
+  @@map("categories")
+}
+
+model Product {
+  id                   String               @id @default(uuid())
+  categoryId           String
+  name                 String
+  slug                 String               @unique
+  description          String?
+  price                Float
+  isActive             Boolean              @default(true)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  category             Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  media                ProductMedia[]
+  promotions           Promotion[]
+  promotionExclusions  PromotionExclusion[]
+
+  @@map("products")
+}
+
+model ProductMedia {
+  id           String   @id @default(uuid())
+  productId    String
+  type         String   // "image" | "video"
+  url          String
+  storagePath  String
+  displayOrder Int      @default(0)
+  isCover      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_media")
+}
+
+model Promotion {
+  id                 String               @id @default(uuid())
+  name               String
+  type               String               // "product" | "category"
+  discountPercentage Float
+  productId          String?
+  categoryId         String?
+  startDate          DateTime
+  endDate            DateTime
+  isActive           Boolean              @default(true)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  product            Product?             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category           Category?            @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  exclusions         PromotionExclusion[]
+
+  @@map("promotions")
+}
+
+model PromotionExclusion {
+  id          String    @id @default(uuid())
+  promotionId String
+  productId   String
+  createdAt   DateTime  @default(now())
+  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([promotionId, productId])
+  @@map("promotion_exclusions")
+}
