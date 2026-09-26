@@ -274,13 +274,7 @@ export const HomeCatalogPage: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '2rem'
-            }}
-          >
+          <div className="catalog-products-grid">
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}

@@ -76,7 +76,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
           boxShadow: 'var(--shadow-modal)',
           position: 'relative',
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))'
         }}
         onClick={(e) => e.stopPropagation()}
       >

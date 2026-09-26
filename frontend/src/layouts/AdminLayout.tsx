@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.js';
 import {
@@ -9,12 +9,15 @@ import {
   User,
   LogOut,
   ExternalLink,
-  ShieldAlert
+  ShieldAlert,
+  Menu,
+  X
 } from 'lucide-react';
 
 export const AdminLayout: React.FC = () => {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
+  const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
 
   if (isLoading) {
     return (
@@ -69,9 +72,44 @@ export const AdminLayout: React.FC = () => {
   ];
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#F8F9FA' }}>
+    <div className="admin-layout-container" style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#F8F9FA' }}>
+      {/* Mobile Top Bar (visible only on <= 768px) */}
+      <header className="admin-mobile-bar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img
+            src="/logo-ph.jpg"
+            alt="Logo"
+            style={{ width: '32px', height: '32px', borderRadius: '6px' }}
+          />
+          <div>
+            <h3 style={{ fontSize: '0.9rem', fontWeight: 800, lineHeight: 1.1 }}>
+              ACCESORIOS PH
+            </h3>
+            <span style={{ fontSize: '0.68rem', color: 'var(--color-gray-muted)' }}>
+              Panel Admin
+            </span>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setIsMobileOpen(!isMobileOpen)}
+          className="btn btn-outline"
+          style={{ padding: '0.45rem', borderRadius: '8px' }}
+          aria-label="Abrir menú"
+        >
+          {isMobileOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </header>
+
+      {/* Mobile Drawer Backdrop */}
+      <div
+        className={`admin-sidebar-backdrop ${isMobileOpen ? 'open' : ''}`}
+        onClick={() => setIsMobileOpen(false)}
+      />
+
       {/* Sidebar */}
       <aside
+        className={`admin-sidebar ${isMobileOpen ? 'open' : ''}`}
         style={{
           width: '260px',
           backgroundColor: 'var(--color-white)',
@@ -90,28 +128,44 @@ export const AdminLayout: React.FC = () => {
             borderBottom: '1px solid var(--color-gray-border)',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px'
+            justifyContent: 'space-between'
           }}
         >
-          <img
-            src="/logo-ph.jpg"
-            alt="Logo"
-            style={{ width: '38px', height: '38px', borderRadius: '8px' }}
-          />
-          <div>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: 800, lineHeight: 1.1 }}>
-              ACCESORIOS PH
-            </h3>
-            <span
-              style={{
-                fontSize: '0.72rem',
-                color: 'var(--color-gray-muted)',
-                fontWeight: 600
-              }}
-            >
-              Panel de Control
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img
+              src="/logo-ph.jpg"
+              alt="Logo"
+              style={{ width: '38px', height: '38px', borderRadius: '8px' }}
+            />
+            <div>
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 800, lineHeight: 1.1 }}>
+                ACCESORIOS PH
+              </h3>
+              <span
+                style={{
+                  fontSize: '0.72rem',
+                  color: 'var(--color-gray-muted)',
+                  fontWeight: 600
+                }}
+              >
+                Panel de Control
+              </span>
+            </div>
           </div>
+
+          {/* Close button inside drawer for mobile */}
+          <button
+            onClick={() => setIsMobileOpen(false)}
+            className="admin-mobile-bar"
+            style={{
+              padding: '4px',
+              color: 'var(--color-gray-muted)',
+              border: 'none',
+              background: 'none'
+            }}
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* Navigation list */}
@@ -130,6 +184,7 @@ export const AdminLayout: React.FC = () => {
               <NavLink
                 key={item.to}
                 to={item.to}
+                onClick={() => setIsMobileOpen(false)}
                 className={({ isActive }) =>
                   `btn ${isActive ? 'btn-primary' : ''}`
                 }
@@ -222,7 +277,7 @@ export const AdminLayout: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main style={{ flex: 1, padding: '2.5rem', overflowY: 'auto' }}>
+      <main className="admin-main-content" style={{ flex: 1, padding: '2.5rem', overflowY: 'auto' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           <Outlet />
         </div>

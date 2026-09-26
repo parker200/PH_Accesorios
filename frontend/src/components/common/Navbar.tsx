@@ -54,6 +54,7 @@ export const Navbar: React.FC = () => {
               ACCESORIOS PH
             </span>
             <span
+              className="nav-subtitle"
               style={{
                 fontSize: '0.68rem',
                 fontWeight: 600,
@@ -68,9 +69,10 @@ export const Navbar: React.FC = () => {
         </Link>
 
         {/* Navigation Actions */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <nav style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <Link
             to="/"
+            className="nav-catalog-link"
             style={{
               fontSize: '0.92rem',
               fontWeight: 600,
@@ -87,13 +89,13 @@ export const Navbar: React.FC = () => {
             className="btn btn-outline"
             style={{
               position: 'relative',
-              padding: '0.5rem 0.9rem',
+              padding: '0.5rem 0.85rem',
               fontSize: '0.88rem'
             }}
             title="Ver carrito de pedido"
           >
             <ShoppingBag size={18} />
-            <span>Carrito</span>
+            <span className="nav-btn-text">Carrito</span>
             {totalItems > 0 && (
               <span
                 style={{
@@ -116,10 +118,10 @@ export const Navbar: React.FC = () => {
               <Link
                 to="/admin/dashboard"
                 className="btn btn-outline"
-                style={{ fontSize: '0.85rem', padding: '0.45rem 1rem' }}
+                style={{ fontSize: '0.85rem', padding: '0.45rem 0.85rem' }}
               >
                 <LayoutDashboard size={16} />
-                <span>Panel Admin</span>
+                <span className="nav-btn-text">Panel</span>
               </Link>
               <button
                 onClick={() => {
@@ -127,7 +129,7 @@ export const Navbar: React.FC = () => {
                   navigate('/');
                 }}
                 className="btn btn-secondary"
-                style={{ padding: '0.45rem 0.75rem' }}
+                style={{ padding: '0.45rem 0.7rem' }}
                 title="Cerrar sesión"
               >
                 <LogOut size={16} />
@@ -137,10 +139,10 @@ export const Navbar: React.FC = () => {
             <Link
               to="/admin/login"
               className="btn btn-outline"
-              style={{ fontSize: '0.85rem', padding: '0.45rem 1rem' }}
+              style={{ fontSize: '0.85rem', padding: '0.45rem 0.85rem' }}
             >
               <ShieldCheck size={16} />
-              <span>Acceso Admin</span>
+              <span className="nav-btn-text">Admin</span>
             </Link>
           )}
         </nav>
