@@ -3,7 +3,9 @@ import { api } from '../../services/api.js';
 import { Hero } from '../../components/catalog/Hero.js';
 import { ProductCard, Product } from '../../components/catalog/ProductCard.js';
 import { ProductModal } from '../../components/catalog/ProductModal.js';
-import { Search, Sparkles, Filter, X } from 'lucide-react';
+import { Search, Sparkles, Filter, X, ShoppingBag } from 'lucide-react';
+import { useCart } from '../../contexts/CartContext.js';
+import { formatBs } from '../../utils/formatters.js';
 
 interface Category {
   id: string;
@@ -15,6 +17,7 @@ interface Category {
 }
 
 export const HomeCatalogPage: React.FC = () => {
+  const { totalItems, totalPrice, setIsCartOpen } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
@@ -291,6 +294,54 @@ export const HomeCatalogPage: React.FC = () => {
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
       />
+
+      {/* Floating Bottom Cart Pill when customer has items */}
+      {totalItems > 0 && (
+        <aside
+          className="animate-fade-in"
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 900,
+            width: 'auto',
+            maxWidth: '92%'
+          }}
+        >
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="btn btn-primary"
+            style={{
+              boxShadow: '0 10px 30px rgba(20, 15, 12, 0.4)',
+              padding: '0.85rem 1.6rem',
+              fontSize: '0.95rem',
+              borderRadius: 'var(--radius-full)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              border: '1px solid rgba(255, 255, 255, 0.15)'
+            }}
+          >
+            <ShoppingBag size={20} />
+            <span>
+              Ver Carrito ({totalItems}) • <strong>{formatBs(totalPrice)}</strong>
+            </span>
+            <span
+              style={{
+                backgroundColor: 'var(--color-sky-blue)',
+                color: 'var(--color-black)',
+                padding: '3px 10px',
+                borderRadius: 'var(--radius-full)',
+                fontSize: '0.75rem',
+                fontWeight: 800
+              }}
+            >
+              Pedir ➔
+            </span>
+          </button>
+        </aside>
+      )}
     </div>
   );
 };

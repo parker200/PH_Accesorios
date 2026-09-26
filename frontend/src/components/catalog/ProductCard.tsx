@@ -1,4 +1,5 @@
-import { Video, Sparkles, Eye, ShoppingBag } from 'lucide-react';
+import React, { useState } from 'react';
+import { Video, Sparkles, Eye, ShoppingBag, Check } from 'lucide-react';
 import { formatBs, getMediaUrl } from '../../utils/formatters.js';
 import { useCart } from '../../contexts/CartContext.js';
 
@@ -42,6 +43,7 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail }) => {
   const { addItem } = useCart();
+  const [isAdded, setIsAdded] = useState(false);
 
   const coverImage =
     product.media.find((m) => m.isCover && m.type === 'image') ||
@@ -267,16 +269,29 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
                 flex: 1,
                 padding: '0.65rem 0.9rem',
                 fontSize: '0.86rem',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                backgroundColor: isAdded ? '#1e293b' : 'var(--color-black)',
+                transition: 'all 0.2s ease'
               }}
               onClick={(e) => {
                 e.stopPropagation();
                 addItem(product, 1);
+                setIsAdded(true);
+                setTimeout(() => setIsAdded(false), 1500);
               }}
               title="Añadir al carrito"
             >
-              <ShoppingBag size={16} />
-              <span>Añadir al Carrito</span>
+              {isAdded ? (
+                <>
+                  <Check size={16} color="var(--color-sky-blue)" />
+                  <span style={{ color: 'var(--color-sky-blue)', fontWeight: 700 }}>¡Añadido!</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingBag size={16} />
+                  <span>Añadir al Carrito</span>
+                </>
+              )}
             </button>
 
             <button

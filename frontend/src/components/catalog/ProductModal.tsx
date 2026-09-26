@@ -37,13 +37,19 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [product, onClose]);
 
+  const [isAdded, setIsAdded] = useState<boolean>(false);
+
   if (!product) return null;
 
   const currentMedia = product.media[selectedMediaIndex] || product.media[0];
 
   const handleAddToCart = () => {
     addItem(product, quantity);
-    onClose();
+    setIsAdded(true);
+    setTimeout(() => {
+      setIsAdded(false);
+      onClose();
+    }, 600);
   };
 
   return (
@@ -452,11 +458,24 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                   width: '100%',
                   padding: '0.85rem',
                   fontSize: '0.95rem',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  backgroundColor: isAdded ? '#1e293b' : 'var(--color-black)',
+                  transition: 'all 0.2s ease'
                 }}
               >
-                <ShoppingBag size={18} />
-                <span>Añadir {quantity > 1 ? `(${quantity})` : ''} al Carrito</span>
+                {isAdded ? (
+                  <>
+                    <Check size={18} color="var(--color-sky-blue)" />
+                    <span style={{ color: 'var(--color-sky-blue)', fontWeight: 700 }}>
+                      ¡Añadido al Carrito!
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag size={18} />
+                    <span>Añadir {quantity > 1 ? `(${quantity})` : ''} al Carrito</span>
+                  </>
+                )}
               </button>
 
               <WhatsAppButton

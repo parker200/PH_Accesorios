@@ -8,6 +8,14 @@ export const Navbar: React.FC = () => {
   const { isAuthenticated, logout } = useAuth();
   const { totalItems, setIsCartOpen } = useCart();
   const navigate = useNavigate();
+  const [badgeBump, setBadgeBump] = React.useState(false);
+
+  React.useEffect(() => {
+    if (totalItems === 0) return;
+    setBadgeBump(true);
+    const timer = setTimeout(() => setBadgeBump(false), 350);
+    return () => clearTimeout(timer);
+  }, [totalItems]);
 
   return (
     <header className="glass-nav" style={{ position: 'sticky', top: 0, zIndex: 100 }}>
@@ -99,13 +107,15 @@ export const Navbar: React.FC = () => {
             {totalItems > 0 && (
               <span
                 style={{
-                  backgroundColor: 'var(--color-black)',
-                  color: 'var(--color-white)',
+                  backgroundColor: badgeBump ? 'var(--color-sky-blue)' : 'var(--color-black)',
+                  color: badgeBump ? 'var(--color-black)' : 'var(--color-white)',
                   borderRadius: 'var(--radius-full)',
                   fontSize: '0.72rem',
                   fontWeight: 800,
                   padding: '2px 7px',
-                  marginLeft: '2px'
+                  marginLeft: '2px',
+                  transform: badgeBump ? 'scale(1.25)' : 'scale(1)',
+                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}
               >
                 {totalItems}

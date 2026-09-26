@@ -46,6 +46,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [toastItem, setToastItem] = useState<{ name: string; quantity: number } | null>(null);
 
   useEffect(() => {
     try {
@@ -55,7 +56,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [items]);
 
-  const addItem = (product: any, quantity = 1) => {
+  const addItem = (product: any, quantity = 1, openModal = false) => {
     setItems((prev) => {
       const existingIndex = prev.findIndex((item) => item.id === product.id);
       const cover =
@@ -83,7 +84,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       ];
     });
-    setIsCartOpen(true);
+
+    if (openModal) {
+      setIsCartOpen(true);
+    } else {
+      setToastItem({ name: product.name, quantity });
+      setTimeout(() => {
+        setToastItem(null);
+      }, 3000);
+    }
   };
 
   const removeItem = (productId: string) => {
@@ -122,6 +131,46 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }}
     >
       {children}
+
+      {/* Floating Feedback Toast when an item is added */}
+      {toastItem && (
+        <div
+          className="animate-fade-in"
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            backgroundColor: 'var(--color-black)',
+            color: 'var(--color-white)',
+            padding: '0.85rem 1.25rem',
+            borderRadius: 'var(--radius-full)',
+            boxShadow: '0 8px 24px rgba(20, 15, 12, 0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            zIndex: 1500,
+            maxWidth: '90vw'
+          }}
+        >
+          <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>
+            ✓ Añadido ({toastItem.quantity}x): <strong>{toastItem.name}</strong>
+          </span>
+          <button
+            onClick={() => {
+              setToastItem(null);
+              setIsCartOpen(true);
+            }}
+            className="btn btn-accent"
+            style={{
+              padding: '0.35rem 0.85rem',
+              fontSize: '0.8rem',
+              fontWeight: 700
+            }}
+          >
+            Ver Carrito
+          </button>
+        </div>
+      )}
     </CartContext.Provider>
   );
 };
