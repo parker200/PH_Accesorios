@@ -22,7 +22,7 @@ export class PromotionsController {
 
   getById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const promotion = await this.service.getPromotionById(req.params.id);
+      const promotion = await this.service.getPromotionById(req.params.id as string);
       res.json({
         success: true,
         data: promotion
@@ -47,7 +47,7 @@ export class PromotionsController {
 
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const promotion = await this.service.updatePromotion(req.params.id, req.body);
+      const promotion = await this.service.updatePromotion(req.params.id as string, req.body);
       res.json({
         success: true,
         message: 'Promotion updated successfully',
@@ -60,7 +60,7 @@ export class PromotionsController {
 
   delete = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this.service.deletePromotion(req.params.id);
+      await this.service.deletePromotion(req.params.id as string);
       res.json({
         success: true,
         message: 'Promotion deleted successfully'

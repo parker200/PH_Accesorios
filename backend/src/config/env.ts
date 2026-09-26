@@ -14,11 +14,14 @@ const envSchema = z.object({
   MAX_FILE_SIZE_MB: z.coerce.number().default(15)
 });
 
-const _env = envSchema.safeParse(process.env);
-
-if (!_env.success) {
-  console.error('❌ Invalid environment variables:', _env.error.format());
+let parsedEnv: z.infer<typeof envSchema>;
+try {
+  parsedEnv = envSchema.parse(process.env);
+} catch (error) {
+  if (error instanceof z.ZodError) {
+    console.error('❌ Invalid environment variables:', error.format());
+  }
   process.exit(1);
 }
 
-export const env = _env.data;
+export const env = parsedEnv;

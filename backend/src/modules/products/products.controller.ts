@@ -45,7 +45,7 @@ export class ProductsController {
 
   getById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const product = await this.service.getProductById(req.params.id);
+      const product = await this.service.getProductById(req.params.id as string);
       res.json({
         success: true,
         data: product
@@ -70,7 +70,7 @@ export class ProductsController {
 
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const product = await this.service.updateProduct(req.params.id, req.body);
+      const product = await this.service.updateProduct(req.params.id as string, req.body);
       res.json({
         success: true,
         message: 'Product updated successfully',
@@ -83,7 +83,7 @@ export class ProductsController {
 
   delete = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this.service.deleteProduct(req.params.id);
+      await this.service.deleteProduct(req.params.id as string);
       res.json({
         success: true,
         message: 'Product deleted successfully'
@@ -101,7 +101,7 @@ export class ProductsController {
       }
 
       const isCover = req.body.isCover === 'true' || req.body.isCover === true;
-      const media = await this.service.uploadProductMedia(req.params.id, files, isCover);
+      const media = await this.service.uploadProductMedia(req.params.id as string, files, isCover);
 
       res.status(201).json({
         success: true,
@@ -115,7 +115,7 @@ export class ProductsController {
 
   deleteMedia = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this.service.deleteMedia(req.params.productId, req.params.mediaId);
+      await this.service.deleteMedia(req.params.productId as string, req.params.mediaId as string);
       res.json({
         success: true,
         message: 'Media deleted successfully'
@@ -127,7 +127,7 @@ export class ProductsController {
 
   setCoverMedia = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this.service.setCoverMedia(req.params.productId, req.params.mediaId);
+      await this.service.setCoverMedia(req.params.productId as string, req.params.mediaId as string);
       res.json({
         success: true,
         message: 'Cover media updated successfully'

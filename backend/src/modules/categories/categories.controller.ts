@@ -23,7 +23,7 @@ export class CategoriesController {
 
   getById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const category = await this.service.getCategoryById(req.params.id);
+      const category = await this.service.getCategoryById(req.params.id as string);
       res.json({
         success: true,
         data: category
@@ -48,7 +48,7 @@ export class CategoriesController {
 
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const category = await this.service.updateCategory(req.params.id, req.body);
+      const category = await this.service.updateCategory(req.params.id as string, req.body);
       res.json({
         success: true,
         message: 'Category updated successfully',
@@ -61,7 +61,7 @@ export class CategoriesController {
 
   delete = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this.service.deleteCategory(req.params.id);
+      await this.service.deleteCategory(req.params.id as string);
       res.json({
         success: true,
         message: 'Category deleted successfully'
