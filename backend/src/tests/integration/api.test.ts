@@ -53,4 +53,53 @@ describe('Integration Tests - Critical Endpoints', () => {
     expect(res.body.data).toHaveProperty('token');
     expect(res.body.data.user.username).toBe('admin');
   });
+
+  it('GET /api/auth/me con token válido debe devolver el perfil autenticado', async () => {
+    const loginRes = await request(app).post('/api/auth/login').send({
+      username: 'admin',
+      password: 'AdminPassword123!'
+    });
+    const token = loginRes.body.data.token;
+
+    const meRes = await request(app)
+      .get('/api/auth/me')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(meRes.status).toBe(200);
+    expect(meRes.body.success).toBe(true);
+    expect(meRes.body.data.username).toBe('admin');
+  });
+
+  it('GET /api/auth/me sin token debe devolver 401 Unauthorized', async () => {
+    const meRes = await request(app).get('/api/auth/me');
+    expect(meRes.status).toBe(401);
+    expect(meRes.body.success).toBe(false);
+  });
+
+  it('GET /api/products/:id con ID existente debe devolver el detalle del producto', async () => {
+    const listRes = await request(app).get('/api/products');
+    const firstProduct = listRes.body.data[0];
+
+    const res = await request(app).get(`/api/products/${firstProduct.id}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe(firstProduct.id);
+    expect(res.body.data.pricing).toBeDefined();
+  });
+
+  it('GET /api/promotions con token debe listar las promociones del sistema', async () => {
+    const loginRes = await request(app).post('/api/auth/login').send({
+      username: 'admin',
+      password: 'AdminPassword123!'
+    });
+    const token = loginRes.body.data.token;
+
+    const res = await request(app)
+      .get('/api/promotions')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
 });

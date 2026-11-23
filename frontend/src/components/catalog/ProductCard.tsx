@@ -45,11 +45,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
   const { addItem } = useCart();
   const [isAdded, setIsAdded] = useState(false);
 
+  const mediaList = product.media || [];
   const coverImage =
-    product.media.find((m) => m.isCover && m.type === 'image') ||
-    product.media.find((m) => m.type === 'image');
+    mediaList.find((m) => m.isCover && m.type === 'image') ||
+    mediaList.find((m) => m.type === 'image');
 
-  const hasVideo = product.media.some((m) => m.type === 'video');
+  const hasVideo = mediaList.some((m) => m.type === 'video');
 
   return (
     <div
@@ -138,7 +139,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
             pointerEvents: 'none'
           }}
         >
-          {product.pricing.hasDiscount ? (
+          {product.pricing?.hasDiscount ? (
             <span
               className="badge badge-discount"
               style={{
@@ -192,7 +193,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
               marginBottom: '4px'
             }}
           >
-            {product.category.name}
+            {product.category?.name || 'Accesorio'}
           </span>
 
           {/* Product Name */}
@@ -244,10 +245,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
                 color: 'var(--color-black)'
               }}
             >
-              {formatBs(product.pricing.finalPrice)}
+              {formatBs(product.pricing?.finalPrice ?? product.price)}
             </span>
 
-            {product.pricing.hasDiscount && (
+            {product.pricing?.hasDiscount && (
               <span
                 style={{
                   fontSize: '0.9rem',
@@ -255,7 +256,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
                   textDecoration: 'line-through'
                 }}
               >
-                {formatBs(product.pricing.originalPrice)}
+                {formatBs(product.pricing?.originalPrice ?? product.price)}
               </span>
             )}
           </div>

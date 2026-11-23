@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api.js';
 import { useToast } from '../../contexts/ToastContext.js';
+import { useModalBackHandler } from '../../utils/useModalBackHandler.js';
 import {
   Percent,
   Plus,
@@ -47,6 +48,12 @@ export const AdminPromotionsPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { showToast } = useToast();
+
+  const { safeClose } = useModalBackHandler({
+    isOpen: isModalOpen,
+    onClose: () => setIsModalOpen(false),
+    modalId: 'admin-promotion-modal'
+  });
 
   const fetchData = async () => {
     try {
@@ -105,14 +112,24 @@ export const AdminPromotionsPage: React.FC = () => {
       return;
     }
 
+    if (type === 'product' && !productId) {
+      showToast('Por favor selecciona un producto para la promoción', 'error');
+      return;
+    }
+
+    if (type === 'category' && !categoryId) {
+      showToast('Por favor selecciona una categoría para la promoción', 'error');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await api.createPromotion({
         name,
         type,
         discountPercentage: discount,
-        productId: type === 'product' ? productId : null,
-        categoryId: type === 'category' ? categoryId : null,
+        productId: type === 'product' ? (productId || null) : null,
+        categoryId: type === 'category' ? (categoryId || null) : null,
         startDate: new Date(startDate).toISOString(),
         endDate: new Date(endDate).toISOString(),
         isActive,
@@ -120,7 +137,7 @@ export const AdminPromotionsPage: React.FC = () => {
       });
 
       showToast('Promoción creada con éxito', 'success');
-      setIsModalOpen(false);
+      safeClose();
       fetchData();
     } catch (error: any) {
       showToast(error.message || 'Error al guardar promoción', 'error');
@@ -350,7 +367,7 @@ export const AdminPromotionsPage: React.FC = () => {
             zIndex: 1000,
             padding: '1.5rem'
           }}
-          onClick={() => setIsModalOpen(false)}
+          onClick={safeClose}
         >
           <div
             className="animate-fade-in"
@@ -376,7 +393,7 @@ export const AdminPromotionsPage: React.FC = () => {
             >
               <h3 style={{ fontSize: '1.3rem', fontWeight: 800 }}>Crear Promoción</h3>
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={safeClose}
                 style={{ color: 'var(--color-gray-muted)' }}
               >
                 <X size={20} />
@@ -590,7 +607,7 @@ export const AdminPromotionsPage: React.FC = () => {
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={safeClose}
                   className="btn btn-outline"
                 >
                   Cancelar

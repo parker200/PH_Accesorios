@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '../../services/api.js';
 import { Hero } from '../../components/catalog/Hero.js';
 import { ProductCard, Product } from '../../components/catalog/ProductCard.js';
 import { ProductModal } from '../../components/catalog/ProductModal.js';
-import { Search, Sparkles, Filter, X, ShoppingBag } from 'lucide-react';
+import { Search, Sparkles, Filter, X, ShoppingBag, AlertCircle, RefreshCw } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext.js';
 import { formatBs } from '../../utils/formatters.js';
 
@@ -18,18 +19,22 @@ interface Category {
 
 export const HomeCatalogPage: React.FC = () => {
   const { totalItems, totalPrice, setIsCartOpen } = useCart();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const catalogSectionRef = useRef<HTMLDivElement>(null);
+  const productParam = searchParams.get('product');
 
   const fetchData = async () => {
     try {
       setIsLoading(true);
+      setFetchError(null);
       const [catsRes, prodsRes] = await Promise.all([
         api.getCategories(),
         api.getProducts()
@@ -38,6 +43,7 @@ export const HomeCatalogPage: React.FC = () => {
       setProducts(prodsRes.data || []);
     } catch (error) {
       console.error('Error fetching catalog data:', error);
+      setFetchError('No se pudo conectar con el catálogo. Por favor intenta de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -47,6 +53,46 @@ export const HomeCatalogPage: React.FC = () => {
     fetchData();
   }, []);
 
+  // Synchronize URL ?product= query param with selectedProduct state
+  // This ensures browser back / mobile gesture closes the modal instead of navigating away
+  useEffect(() => {
+    if (!productParam) {
+      setSelectedProduct(null);
+      return;
+    }
+
+    if (products.length > 0) {
+      const found = products.find(
+        (p) => p.id === productParam || p.slug === productParam
+      );
+      if (found) {
+        setSelectedProduct(found);
+      } else {
+        api.getProduct(productParam)
+          .then((res) => setSelectedProduct(res.data))
+          .catch(() => setSelectedProduct(null));
+      }
+    }
+  }, [productParam, products]);
+
+  const handleOpenProduct = (prod: Product) => {
+    setSelectedProduct(prod);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set('product', prod.id);
+      return next;
+    });
+  };
+
+  const handleCloseProduct = () => {
+    setSelectedProduct(null);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete('product');
+      return next;
+    });
+  };
+
   const scrollToCatalog = () => {
     catalogSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -54,7 +100,7 @@ export const HomeCatalogPage: React.FC = () => {
   // Filter products by selected category and search input
   const filteredProducts = products.filter((prod) => {
     const matchesCategory =
-      selectedCategoryId === 'all' || prod.category.id === selectedCategoryId;
+      selectedCategoryId === 'all' || prod.category?.id === selectedCategoryId;
     const matchesSearch =
       searchQuery.trim() === '' ||
       prod.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -63,7 +109,7 @@ export const HomeCatalogPage: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const discountedCount = products.filter((p) => p.pricing.hasDiscount).length;
+  const discountedCount = products.filter((p) => p.pricing?.hasDiscount).length;
 
   return (
     <div>
@@ -227,7 +273,30 @@ export const HomeCatalogPage: React.FC = () => {
         </div>
 
         {/* Products Grid */}
-        {isLoading ? (
+        {fetchError ? (
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '4rem 1.5rem',
+              backgroundColor: 'var(--color-white)',
+              borderRadius: 'var(--radius-xl)',
+              boxShadow: 'var(--shadow-subtle)',
+              border: '1px solid var(--color-danger-bg)'
+            }}
+          >
+            <AlertCircle size={44} color="var(--color-danger)" style={{ margin: '0 auto 1rem' }} />
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: 'var(--color-danger)' }}>
+              Error al cargar productos
+            </h3>
+            <p style={{ maxWidth: '400px', margin: '0 auto 1.5rem', fontSize: '0.9rem', color: 'var(--color-gray-muted)' }}>
+              {fetchError}
+            </p>
+            <button onClick={fetchData} className="btn btn-primary" style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
+              <RefreshCw size={16} />
+              <span>Reintentar</span>
+            </button>
+          </div>
+        ) : isLoading ? (
           <div
             style={{
               textAlign: 'center',
@@ -282,7 +351,7 @@ export const HomeCatalogPage: React.FC = () => {
               <ProductCard
                 key={product.id}
                 product={product}
-                onOpenDetail={(prod) => setSelectedProduct(prod)}
+                onOpenDetail={(prod) => handleOpenProduct(prod)}
               />
             ))}
           </div>
@@ -292,7 +361,7 @@ export const HomeCatalogPage: React.FC = () => {
       {/* Product Detail Modal */}
       <ProductModal
         product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
+        onClose={handleCloseProduct}
       />
 
       {/* Floating Bottom Cart Pill when customer has items */}

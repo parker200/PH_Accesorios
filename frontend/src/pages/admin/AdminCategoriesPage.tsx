@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api.js';
 import { useToast } from '../../contexts/ToastContext.js';
+import { useModalBackHandler } from '../../utils/useModalBackHandler.js';
 import { Tags, Plus, Edit2, Trash2, X } from 'lucide-react';
 
 interface Category {
@@ -27,6 +28,12 @@ export const AdminCategoriesPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { showToast } = useToast();
+
+  const { safeClose } = useModalBackHandler({
+    isOpen: isModalOpen,
+    onClose: () => setIsModalOpen(false),
+    modalId: 'admin-category-modal'
+  });
 
   const fetchCategories = async () => {
     try {
@@ -81,7 +88,7 @@ export const AdminCategoriesPage: React.FC = () => {
         showToast('Categoría creada con éxito', 'success');
       }
 
-      setIsModalOpen(false);
+      safeClose();
       fetchCategories();
     } catch (error: any) {
       showToast(error.message || 'Error al guardar categoría', 'error');
@@ -273,7 +280,7 @@ export const AdminCategoriesPage: React.FC = () => {
             zIndex: 1000,
             padding: '1.5rem'
           }}
-          onClick={() => setIsModalOpen(false)}
+          onClick={safeClose}
         >
           <div
             className="animate-fade-in"
@@ -299,7 +306,7 @@ export const AdminCategoriesPage: React.FC = () => {
                 {editingCategory ? 'Editar Categoría' : 'Nueva Categoría'}
               </h3>
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={safeClose}
                 style={{ color: 'var(--color-gray-muted)' }}
               >
                 <X size={20} />
@@ -354,7 +361,7 @@ export const AdminCategoriesPage: React.FC = () => {
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={safeClose}
                   className="btn btn-outline"
                 >
                   Cancelar

@@ -1,11 +1,14 @@
 /**
  * Utility to format monetary amounts in Bolivianos (Bs)
  */
-export const formatBs = (amount: number): string => {
+export const formatBs = (amount: number | string | undefined | null): string => {
+  const num = typeof amount === 'number' ? amount : parseFloat(String(amount || 0));
+  const validNum = isNaN(num) ? 0 : num;
+
   const formatted = new Intl.NumberFormat('es-BO', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
-  }).format(amount);
+  }).format(validNum);
 
   return `Bs ${formatted}`;
 };

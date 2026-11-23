@@ -3,6 +3,7 @@ import { Product } from './ProductCard.js';
 import { WhatsAppButton } from '../common/WhatsAppButton.js';
 import { formatBs, getMediaUrl } from '../../utils/formatters.js';
 import { useCart } from '../../contexts/CartContext.js';
+import { useModalBackHandler } from '../../utils/useModalBackHandler.js';
 import {
   X,
   Sparkles,
@@ -26,29 +27,40 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
   const [selectedMediaIndex, setSelectedMediaIndex] = useState<number>(0);
   const [isMuted, setIsMuted] = useState<boolean>(true);
   const [quantity, setQuantity] = useState<number>(1);
+  const [isAdded, setIsAdded] = useState<boolean>(false);
+
+  // Intercept browser and mobile back gesture so going back closes the modal instead of the page
+  const { safeClose } = useModalBackHandler({
+    isOpen: !!product,
+    onClose,
+    modalId: product ? `product-${product.id}` : 'product-modal'
+  });
 
   useEffect(() => {
     setSelectedMediaIndex(0);
     setQuantity(1);
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') safeClose();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [product, onClose]);
-
-  const [isAdded, setIsAdded] = useState<boolean>(false);
+  }, [product, safeClose]);
 
   if (!product) return null;
 
-  const currentMedia = product.media[selectedMediaIndex] || product.media[0];
+  const mediaList = product.media || [];
+  const currentMedia = mediaList[selectedMediaIndex] || mediaList[0];
+
+  const finalPrice = product.pricing?.finalPrice ?? product.price;
+  const originalPrice = product.pricing?.originalPrice ?? product.price;
+  const hasDiscount = !!product.pricing?.hasDiscount;
 
   const handleAddToCart = () => {
     addItem(product, quantity);
     setIsAdded(true);
     setTimeout(() => {
       setIsAdded(false);
-      onClose();
+      safeClose();
     }, 600);
   };
 
@@ -68,7 +80,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
         justifyContent: 'center',
         padding: '1.25rem'
       }}
-      onClick={onClose}
+      onClick={safeClose}
     >
       <div
         className="animate-fade-in"
@@ -88,7 +100,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
       >
         {/* Close Button */}
         <button
-          onClick={onClose}
+          onClick={safeClose}
           style={{
             position: 'absolute',
             top: '16px',
@@ -211,7 +223,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
           </div>
 
           {/* Thumbnails row */}
-          {product.media.length > 1 && (
+          {mediaList.length > 1 && (
             <div
               style={{
                 display: 'flex',
@@ -221,7 +233,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                 padding: '4px'
               }}
             >
-              {product.media.map((med, idx) => (
+              {mediaList.map((med, idx) => (
                 <button
                   key={med.id}
                   onClick={() => setSelectedMediaIndex(idx)}
@@ -283,12 +295,12 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                 marginBottom: '0.75rem'
               }}
             >
-              <span className="badge badge-category">{product.category.name}</span>
-              {product.pricing.hasDiscount && (
+              <span className="badge badge-category">{product.category?.name || 'Accesorio'}</span>
+              {hasDiscount && (
                 <span className="badge badge-discount">
                   <Sparkles size={12} />
-                  {product.pricing.discountPercentage}% OFF -{' '}
-                  {product.pricing.activePromotion?.name || 'Promoción activa'}
+                  {product.pricing?.discountPercentage}% OFF -{' '}
+                  {product.pricing?.activePromotion?.name || 'Promoción activa'}
                 </span>
               )}
             </div>
@@ -324,10 +336,10 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                   color: 'var(--color-black)'
                 }}
               >
-                {formatBs(product.pricing.finalPrice)}
+                {formatBs(finalPrice)}
               </span>
 
-              {product.pricing.hasDiscount && (
+              {hasDiscount && (
                 <div>
                   <span
                     style={{
@@ -337,7 +349,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                       marginRight: '8px'
                     }}
                   >
-                    {formatBs(product.pricing.originalPrice)}
+                    {formatBs(originalPrice)}
                   </span>
                   <span
                     style={{
@@ -346,7 +358,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                       color: 'var(--color-black)'
                     }}
                   >
-                    (Ahorras {formatBs(product.pricing.originalPrice - product.pricing.finalPrice)})
+                    (Ahorras {formatBs(originalPrice - finalPrice)})
                   </span>
                 </div>
               )}
@@ -480,7 +492,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
 
               <WhatsAppButton
                 productName={product.name}
-                price={product.pricing.finalPrice * quantity}
+                price={finalPrice * quantity}
                 productId={product.id}
                 style={{
                   width: '100%',

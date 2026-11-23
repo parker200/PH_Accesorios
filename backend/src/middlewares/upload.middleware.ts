@@ -25,11 +25,6 @@ export const uploadMedia = multer({
       );
     }
 
-    // Specific limit for images
-    if (file.mimetype.startsWith('image/') && file.size > 5 * 1024 * 1024) {
-      return cb(new BadRequestError('Image size exceeds limit of 5MB'));
-    }
-
     cb(null, true);
   }
 });

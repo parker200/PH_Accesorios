@@ -10,9 +10,17 @@ export const AdminLoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
+
+  // If already authenticated, redirect to admin dashboard immediately
+  // Prevents navigation loop when clicking browser Back button
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +30,7 @@ export const AdminLoginPage: React.FC = () => {
     try {
       await login({ username, password });
       showToast('Bienvenido al Panel de Administración', 'success');
-      navigate('/admin/dashboard');
+      navigate('/admin/dashboard', { replace: true });
     } catch (err: any) {
       setErrorMessage(err.message || 'Credenciales incorrectas');
       showToast(err.message || 'Error de autenticación', 'error');

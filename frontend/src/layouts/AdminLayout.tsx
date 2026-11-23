@@ -51,7 +51,7 @@ export const AdminLayout: React.FC = () => {
         <ShieldAlert size={48} color="var(--color-danger)" />
         <h2>Acceso Restringido</h2>
         <p>Debes iniciar sesión con una cuenta autorizada para acceder al panel.</p>
-        <button onClick={() => navigate('/admin/login')} className="btn btn-primary">
+        <button onClick={() => navigate('/admin/login', { replace: true })} className="btn btn-primary">
           Ir a Iniciar Sesión
         </button>
       </div>
@@ -60,7 +60,7 @@ export const AdminLayout: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate('/', { replace: true });
   };
 
   const navItems = [

@@ -196,6 +196,10 @@ export class ProductsService {
       const isVideo = file.mimetype.startsWith('video/');
       const type = isVideo ? 'video' : 'image';
 
+      if (!isVideo && file.buffer.length > 5 * 1024 * 1024) {
+        throw new BadRequestError(`Image "${file.originalname}" exceeds limit of 5MB`);
+      }
+
       const stored = await this.storage.saveFile(
         file.buffer,
         file.originalname,

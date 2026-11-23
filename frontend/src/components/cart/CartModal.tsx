@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useCart } from '../../contexts/CartContext.js';
 import { formatBs } from '../../utils/formatters.js';
 import { STORE_CONFIG } from '../../config/store.js';
@@ -25,6 +25,73 @@ export const CartModal: React.FC = () => {
   const [customerAddress, setCustomerAddress] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerNotes, setCustomerNotes] = useState('');
+
+  const isPushedRef = useRef(false);
+
+  // Synchronize modal with browser history so Back button never closes the page
+  useEffect(() => {
+    if (!isCartOpen) {
+      setStep('cart');
+      isPushedRef.current = false;
+      return;
+    }
+
+    // Push initial cart state so Back gesture closes cart or goes back a step
+    window.history.pushState({ modalType: 'cart-modal', step: 'cart' }, '');
+    isPushedRef.current = true;
+
+    const handlePopState = () => {
+      setStep((currentStep) => {
+        if (currentStep === 'checkout') {
+          return 'cart';
+        } else {
+          isPushedRef.current = false;
+          setIsCartOpen(false);
+          return 'cart';
+        }
+      });
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleSafeClose();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isCartOpen, setIsCartOpen]);
+
+  const handleStepToCheckout = () => {
+    setStep('checkout');
+    window.history.pushState({ modalType: 'cart-modal', step: 'checkout' }, '');
+  };
+
+  const handleStepBackToCart = () => {
+    if (isPushedRef.current) {
+      window.history.back();
+    } else {
+      setStep('cart');
+    }
+  };
+
+  const handleSafeClose = () => {
+    if (isPushedRef.current) {
+      isPushedRef.current = false;
+      if (step === 'checkout') {
+        window.history.go(-2);
+      } else {
+        window.history.back();
+      }
+    }
+    setIsCartOpen(false);
+    setStep('cart');
+  };
 
   if (!isCartOpen) return null;
 
@@ -60,10 +127,9 @@ ${orderLines}
     // Open WhatsApp
     window.open(whatsappUrl, '_blank');
 
-    // Reset and close
+    // Reset and close safely
     clearCart();
-    setStep('cart');
-    setIsCartOpen(false);
+    handleSafeClose();
   };
 
   return (
@@ -82,7 +148,7 @@ ${orderLines}
         justifyContent: 'center',
         padding: '1rem'
       }}
-      onClick={() => setIsCartOpen(false)}
+      onClick={handleSafeClose}
     >
       <div
         className="animate-fade-in"
@@ -136,7 +202,7 @@ ${orderLines}
           </div>
 
           <button
-            onClick={() => setIsCartOpen(false)}
+            onClick={handleSafeClose}
             style={{
               color: 'var(--color-black)',
               backgroundColor: 'var(--color-white)',
@@ -425,7 +491,7 @@ ${orderLines}
             {step === 'cart' ? (
               <button
                 type="button"
-                onClick={() => setStep('checkout')}
+                onClick={handleStepToCheckout}
                 className="btn btn-primary"
                 style={{
                   width: '100%',
@@ -441,7 +507,7 @@ ${orderLines}
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
                   type="button"
-                  onClick={() => setStep('cart')}
+                  onClick={handleStepBackToCart}
                   className="btn btn-outline"
                   style={{ padding: '0.85rem 1.25rem' }}
                 >

@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ErrorBoundary } from './components/common/ErrorBoundary.js';
 import { AuthProvider } from './contexts/AuthContext.js';
 import { ToastProvider } from './contexts/ToastContext.js';
 import { CartProvider } from './contexts/CartContext.js';
@@ -21,37 +22,39 @@ import { NotFoundPage } from './pages/NotFoundPage.js';
 
 export const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <CartProvider>
-          <ToastProvider>
-            <Routes>
-              {/* Public Catalog Routes */}
-              <Route path="/" element={<PublicLayout />}>
-                <Route index element={<HomeCatalogPage />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Route>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <CartProvider>
+            <ToastProvider>
+              <Routes>
+                {/* Public Catalog Routes */}
+                <Route path="/" element={<PublicLayout />}>
+                  <Route index element={<HomeCatalogPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Route>
 
-              {/* Admin Login */}
-              <Route path="/admin/login" element={<AdminLoginPage />} />
+                {/* Admin Login */}
+                <Route path="/admin/login" element={<AdminLoginPage />} />
 
-              {/* Protected Admin Backoffice */}
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<Navigate to="/admin/dashboard" replace />} />
-                <Route path="dashboard" element={<AdminDashboardPage />} />
-                <Route path="products" element={<AdminProductsPage />} />
-                <Route path="categories" element={<AdminCategoriesPage />} />
-                <Route path="promotions" element={<AdminPromotionsPage />} />
-                <Route path="profile" element={<AdminProfilePage />} />
-              </Route>
-            </Routes>
+                {/* Protected Admin Backoffice */}
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                  <Route path="dashboard" element={<AdminDashboardPage />} />
+                  <Route path="products" element={<AdminProductsPage />} />
+                  <Route path="categories" element={<AdminCategoriesPage />} />
+                  <Route path="promotions" element={<AdminPromotionsPage />} />
+                  <Route path="profile" element={<AdminProfilePage />} />
+                </Route>
+              </Routes>
 
-            {/* Global Shopping Cart Modal */}
-            <CartModal />
-          </ToastProvider>
-        </CartProvider>
-      </AuthProvider>
-    </BrowserRouter>
+              {/* Global Shopping Cart Modal */}
+              <CartModal />
+            </ToastProvider>
+          </CartProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 };
 

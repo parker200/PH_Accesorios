@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../../services/api.js';
 import { useToast } from '../../contexts/ToastContext.js';
+import { useModalBackHandler } from '../../utils/useModalBackHandler.js';
 import {
   Package,
   Plus,
@@ -67,6 +68,18 @@ export const AdminProductsPage: React.FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
+
+  const { safeClose: safeCloseProductModal } = useModalBackHandler({
+    isOpen: isModalOpen,
+    onClose: () => setIsModalOpen(false),
+    modalId: 'admin-product-modal'
+  });
+
+  const { safeClose: safeCloseMediaModal } = useModalBackHandler({
+    isOpen: !!managingMediaProduct,
+    onClose: () => setManagingMediaProduct(null),
+    modalId: 'admin-media-modal'
+  });
 
   const fetchData = async () => {
     try {
@@ -222,7 +235,7 @@ export const AdminProductsPage: React.FC = () => {
         showToast('Fotos/Videos subidos correctamente', 'success');
       }
 
-      setIsModalOpen(false);
+      safeCloseProductModal();
       fetchData();
     } catch (error: any) {
       showToast(error.message || 'Error al guardar producto', 'error');
@@ -627,7 +640,7 @@ export const AdminProductsPage: React.FC = () => {
             zIndex: 1000,
             padding: '1.5rem'
           }}
-          onClick={() => setIsModalOpen(false)}
+          onClick={safeCloseProductModal}
         >
           <div
             className="animate-fade-in"
@@ -655,7 +668,7 @@ export const AdminProductsPage: React.FC = () => {
                 {editingProduct ? 'Editar Producto' : 'Crear Nuevo Accesorio'}
               </h3>
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={safeCloseProductModal}
                 style={{ color: 'var(--color-gray-muted)' }}
               >
                 <X size={20} />
@@ -856,7 +869,7 @@ export const AdminProductsPage: React.FC = () => {
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={safeCloseProductModal}
                   className="btn btn-outline"
                 >
                   Cancelar
@@ -891,7 +904,7 @@ export const AdminProductsPage: React.FC = () => {
             zIndex: 1000,
             padding: '1.5rem'
           }}
-          onClick={() => setManagingMediaProduct(null)}
+          onClick={safeCloseMediaModal}
         >
           <div
             className="animate-fade-in"
@@ -922,7 +935,7 @@ export const AdminProductsPage: React.FC = () => {
                 </p>
               </div>
               <button
-                onClick={() => setManagingMediaProduct(null)}
+                onClick={safeCloseMediaModal}
                 style={{ color: 'var(--color-gray-muted)' }}
               >
                 <X size={20} />
@@ -1057,7 +1070,7 @@ export const AdminProductsPage: React.FC = () => {
               </label>
 
               <button
-                onClick={() => setManagingMediaProduct(null)}
+                onClick={safeCloseMediaModal}
                 className="btn btn-primary"
               >
                 Listo
