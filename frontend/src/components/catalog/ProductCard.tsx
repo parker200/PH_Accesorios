@@ -97,6 +97,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
             src={getMediaUrl(coverImage.url)}
             alt={product.name}
             loading="lazy"
+            onError={(e) => {
+              const target = e.currentTarget;
+              target.style.display = 'none';
+              if (target.parentElement) {
+                target.parentElement.innerHTML = '<div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--color-gray-muted);font-size:0.85rem;background:#F7F7F8;font-weight:600;">PH Accesorio</div>';
+              }
+            }}
             style={{
               position: 'absolute',
               top: 0,

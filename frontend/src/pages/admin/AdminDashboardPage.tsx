@@ -8,7 +8,7 @@ import {
   Plus,
   ArrowRight
 } from 'lucide-react';
-import { formatBs } from '../../utils/formatters.js';
+import { formatBs, getMediaUrl } from '../../utils/formatters.js';
 
 export const AdminDashboardPage: React.FC = () => {
   const [stats, setStats] = useState({
@@ -260,9 +260,16 @@ export const AdminDashboardPage: React.FC = () => {
                   >
                     {cover ? (
                       <img
-                        src={cover}
+                        src={getMediaUrl(cover)}
                         alt={p.name}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.style.display = 'none';
+                          if (target.parentElement) {
+                            target.parentElement.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:var(--color-gray-muted);font-weight:700;">N/A</div>';
+                          }
+                        }}
                       />
                     ) : (
                       <div

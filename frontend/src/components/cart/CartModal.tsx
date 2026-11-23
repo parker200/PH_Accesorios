@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useCart } from '../../contexts/CartContext.js';
-import { formatBs } from '../../utils/formatters.js';
+import { formatBs, getMediaUrl } from '../../utils/formatters.js';
 import { STORE_CONFIG } from '../../config/store.js';
 import {
   X,
@@ -266,9 +266,16 @@ ${orderLines}
                     >
                       {it.coverImage ? (
                         <img
-                          src={it.coverImage}
+                          src={getMediaUrl(it.coverImage)}
                           alt={it.name}
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.style.display = 'none';
+                            if (target.parentElement) {
+                              target.parentElement.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--color-gray-muted);font-weight:700;">PH</div>';
+                            }
+                          }}
                         />
                       ) : (
                         <div

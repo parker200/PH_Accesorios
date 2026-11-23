@@ -15,7 +15,7 @@ import {
   Search,
   Power
 } from 'lucide-react';
-import { formatBs } from '../../utils/formatters.js';
+import { formatBs, getMediaUrl } from '../../utils/formatters.js';
 
 interface ProductMedia {
   id: string;
@@ -235,7 +235,14 @@ export const AdminProductsPage: React.FC = () => {
         showToast('Fotos/Videos subidos correctamente', 'success');
       }
 
+      setIsModalOpen(false);
       safeCloseProductModal();
+      setName('');
+      setPrice('');
+      setDescription('');
+      setFilesToUpload([]);
+      setFilePreviews([]);
+      setEditingProduct(null);
       fetchData();
     } catch (error: any) {
       showToast(error.message || 'Error al guardar producto', 'error');
@@ -507,9 +514,16 @@ export const AdminProductsPage: React.FC = () => {
                           >
                             {cover ? (
                               <img
-                                src={cover}
+                                src={getMediaUrl(cover)}
                                 alt={p.name}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => {
+                                  const target = e.currentTarget;
+                                  target.style.display = 'none';
+                                  if (target.parentElement) {
+                                    target.parentElement.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--color-gray-muted);font-weight:700;">N/A</div>';
+                                  }
+                                }}
                               />
                             ) : (
                               <div
@@ -986,9 +1000,16 @@ export const AdminProductsPage: React.FC = () => {
                     </div>
                   ) : (
                     <img
-                      src={med.url}
+                      src={getMediaUrl(med.url)}
                       alt=""
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.style.display = 'none';
+                        if (target.parentElement) {
+                          target.parentElement.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f1f1f2;font-size:0.75rem;color:var(--color-gray-muted);">IMG</div>';
+                        }
+                      }}
                     />
                   )}
 

@@ -200,6 +200,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                 <img
                   src={getMediaUrl(currentMedia.url)}
                   alt={product.name}
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                    if (target.parentElement) {
+                      target.parentElement.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--color-gray-muted);font-size:0.9rem;background:#F7F7F8;font-weight:600;">Sin vista previa</div>';
+                    }
+                  }}
                   style={{
                     width: '100%',
                     height: '100%',

@@ -54,15 +54,19 @@ export const useModalBackHandler = ({
     };
   }, [isOpen, modalId]);
 
-  // Safe close method for UI triggers (X button, backdrop click, Escape key)
+  // Safe close method for UI triggers (X button, backdrop click, Escape key, form submission)
   const safeClose = useCallback(() => {
+    // Immediately invoke onClose so React state updates without waiting for popstate
+    onCloseRef.current();
+
     if (isPushedRef.current) {
       isPushedRef.current = false;
-      window.history.back();
-    } else {
-      onCloseRef.current();
+      // Check if current history state matches before backing
+      if (window.history.state?.modalOpen && window.history.state?.modalId === modalId) {
+        window.history.back();
+      }
     }
-  }, []);
+  }, [modalId]);
 
   return { safeClose };
 };
