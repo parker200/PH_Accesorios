@@ -20,9 +20,29 @@ export const createApp = () => {
     })
   );
 
+  // CORS configuration supporting local dev, Vercel deployments, and configured origins
+  const configuredOrigins = env.CORS_ORIGIN.split(',').map((o) => o.trim());
+
   app.use(
     cors({
-      origin: env.CORS_ORIGIN,
+      origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, curl, or server-to-server)
+        if (!origin) return callback(null, true);
+
+        // Allow any vercel.app preview or production URL, localhost, or configured CORS_ORIGIN
+        if (
+          configuredOrigins.includes('*') ||
+          configuredOrigins.includes(origin) ||
+          origin.endsWith('.vercel.app') ||
+          origin.includes('localhost') ||
+          origin.includes('127.0.0.1')
+        ) {
+          return callback(null, true);
+        }
+
+        // Permissive fallback so custom domains on Vercel are not blocked
+        return callback(null, true);
+      },
       credentials: true
     })
   );
